@@ -1,0 +1,263 @@
+classDiagram
+    direction TB
+
+    %% ==========================================
+    %% 1. CLASSES BASE (JAR INEMBASE - INTOCÁVEIS)
+    %% ==========================================
+    namespace BaseClassesJAR {
+        class EmergencyVehicle {
+            <<abstract>>
+            -String manufacturer
+            -LocalDate incorporationDate
+            -double maxSpeed
+            +getManufacturer() String
+            +getIncorporationDate() LocalDate
+            +getMaxSpeed() double
+        }
+
+        class EmergencyMission {
+            <<interface>>
+            +getDurationMinutes() int
+            +getDescription() String
+        }
+
+        class MissionLoggable {
+            <<interface>>
+            +addMission(EmergencyMission m)
+            +getMissions() EmergencyMission[]
+        }
+
+        class TeamMember {
+            -int number
+            -String name
+            -String role
+            +TeamMember(int, String, String)
+        }
+
+        class Doctor {
+            +Doctor(int, String)
+        }
+
+        class EmergencyType {
+            <<enum>>
+            ACCIDENT
+            FIRE
+            CARDIAC_ARREST
+            TRANSPORT
+            OTHER
+        }
+        
+        class Serializable {
+            <<interface>>
+        }
+    }
+
+    %% ==========================================
+    %% 2. CLASSES DE DOMÍNIO (A VOSSA IMPLEMENTAÇÃO)
+    %% ==========================================
+    namespace DomainImplementations {
+        class MissionContext {
+            <<enum>>
+            NATIONAL
+            INTERNATIONAL
+        }
+
+        class AppVehicle {
+            <<abstract>>
+            -LocalDate lastInspectionDate
+            -LocalDate nextInspectionDate
+            -double weight
+            -boolean isOperational
+            -EmergencyMission[] missions
+            -int missionCount
+            +addMission(EmergencyMission m)
+            +getMissions() EmergencyMission[]
+            -resizeMissions()
+        }
+
+        class Ambulance {
+            -String licensePlate
+            -int stretcherCapacity
+            -String lifeSupportLevel
+        }
+
+        class MedicalHelicopter {
+            -String registrationTailNumber
+            -int maxFlightAltitude
+            -int rotorCount
+        }
+
+        class RapidResponseCar {
+            -String licensePlate
+            -boolean hasAdvancedDefibrillator
+        }
+
+        class InemMission {
+            -LocalDateTime startDate
+            -LocalDateTime endDate
+            -EmergencyType type
+            -MissionContext context
+            -String description
+            -String authorizerName
+            -String authorizerRole
+            -MedicalTeam assignedTeam
+            +getDurationMinutes() int
+            +getDescription() String
+        }
+
+        class MedicalTeam {
+            -String teamId
+            -TeamMember[] members
+            -int memberCount
+            -Doctor responsibleDoctor
+            -int MAX_MEMBERS
+            +getTeamId() String
+            +addMember(TeamMember m) boolean
+            +removeMember(TeamMember m) boolean
+            +setResponsibleDoctor(Doctor d)
+            -resizeMembers()
+        }
+    }
+
+    %% ==========================================
+    %% 3. OBJETOS DE TRANSFERÊNCIA (DTOs)
+    %% ==========================================
+    namespace DataTransferObjects {
+        class MissionTypeStatsDTO {
+            <<DTO>>
+            +String vehicleType
+            +EmergencyType type
+            +double averageMissions
+        }
+
+        class ContextStatsDTO {
+            <<DTO>>
+            +int nationalCount
+            +int internationalCount
+        }
+    }
+
+    %% ==========================================
+    %% 4. INTERFACES (CONTRATOS CRUD E RELATÓRIOS)
+    %% ==========================================
+    namespace Interfaces {
+        class IVehicleManager {
+            <<interface>>
+            +addVehicle(EmergencyVehicle v) boolean
+            +updateVehicle(String id, EmergencyVehicle newV) boolean
+            +removeVehicle(String id) boolean
+            +getVehicleById(String id) EmergencyVehicle
+            +getAllVehicles() EmergencyVehicle[]
+            +getVehiclesIncorporatedInYear(int year) EmergencyVehicle[]
+            +getVehiclesReachingEndOfLife(int yearsThreshold) EmergencyVehicle[]
+        }
+
+        class IMissionManager {
+            <<interface>>
+            +addMission(EmergencyMission m, EmergencyVehicle v) boolean
+            +getAllMissions() EmergencyMission[]
+            +getMissionReportForVehicle(EmergencyVehicle v) EmergencyMission[]
+            +getAverageMissionsPerVehicleAndType() MissionTypeStatsDTO[]
+            +getNationalVsInternationalStats(EmergencyVehicle v) ContextStatsDTO
+            +getMissionsByTeamMember(TeamMember m) EmergencyMission[]
+        }
+
+        class ITeamManager {
+            <<interface>>
+            +addTeam(MedicalTeam t) boolean
+            +getTeamById(String teamId) MedicalTeam
+            +getAllTeams() MedicalTeam[]
+        }
+
+        class IFileHandler {
+            <<interface>>
+            +saveDataToFile(String filename, INEMFacade system) boolean
+            +loadDataFromFile(String filename, INEMFacade system) boolean
+        }
+    }
+
+    %% ==========================================
+    %% 5. CLASSES DE GESTÃO (MANAGERS & FACADE)
+    %% ==========================================
+    namespace Management {
+        class VehicleManager {
+            -EmergencyVehicle[] vehicles
+            -int vehicleCount
+            -resizeArray()
+        }
+
+        class MissionManager {
+            -EmergencyMission[] missions
+            -int missionCount
+            -resizeArray()
+        }
+
+        class TeamManager {
+            -MedicalTeam[] teams
+            -int teamCount
+            -resizeArray()
+        }
+        
+        class FileManager {
+            <<Service>>
+            +saveDataToFile(String filename, INEMFacade system) boolean
+            +loadDataFromFile(String filename, INEMFacade system) boolean
+        }
+
+        class INEMFacade {
+            -IVehicleManager vehicleManager
+            -IMissionManager missionManager
+            -ITeamManager teamManager
+            -IFileHandler fileManager
+            +INEMFacade()
+            +getVehicleManager() IVehicleManager
+            +getMissionManager() IMissionManager
+            +getTeamManager() ITeamManager
+            +getFileManager() IFileHandler
+        }
+    }
+
+    %% ==========================================
+    %% RELACIONAMENTOS E LIGAÇÕES
+    %% ==========================================
+    
+    %% Heranças e Implementações (Base JAR)
+    EmergencyVehicle ..|> Serializable
+    EmergencyVehicle ..|> MissionLoggable
+    Doctor --|> TeamMember
+    
+    %% Heranças e Implementações (Domínio)
+    AppVehicle --|> EmergencyVehicle
+    Ambulance --|> AppVehicle
+    MedicalHelicopter --|> AppVehicle
+    RapidResponseCar --|> AppVehicle
+    InemMission ..|> EmergencyMission
+    
+    %% Implementação de Interfaces (Managers)
+    VehicleManager ..|> IVehicleManager
+    MissionManager ..|> IMissionManager
+    TeamManager ..|> ITeamManager
+    FileManager ..|> IFileHandler
+    
+    %% Associações e Composições (Domínio)
+    MedicalTeam o-- TeamMember : "agrega 1..*"
+    MedicalTeam *-- Doctor : "exige 1"
+    
+    InemMission --> EmergencyType
+    InemMission --> MissionContext
+    InemMission --> MedicalTeam
+    
+    %% Composições da Facade
+    INEMFacade *-- IVehicleManager
+    INEMFacade *-- IMissionManager
+    INEMFacade *-- ITeamManager
+    INEMFacade *-- IFileHandler
+
+    %% Agregações dos Managers (Arrays de estado)
+    VehicleManager o-- EmergencyVehicle : "gere 0..*"
+    MissionManager o-- EmergencyMission : "gere 0..*"
+    TeamManager o-- MedicalTeam : "gere 0..*"
+
+    %% Dependências de Retorno (DTOs)
+    IMissionManager ..> MissionTypeStatsDTO : "retorna"
+    IMissionManager ..> ContextStatsDTO : "retorna"
