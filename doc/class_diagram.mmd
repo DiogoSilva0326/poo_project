@@ -1,15 +1,13 @@
 classDiagram
     direction TB
 
-    %% ==========================================
-    %% 1. CLASSES BASE (JAR INEMBASE - INTOCÁVEIS)
-    %% ==========================================
     namespace BaseClassesJAR {
         class EmergencyVehicle {
             <<abstract>>
             -String manufacturer
             -LocalDate incorporationDate
             -double maxSpeed
+            +EmergencyVehicle(String, LocalDate, double)
             +getManufacturer() String
             +getIncorporationDate() LocalDate
             +getMaxSpeed() double
@@ -23,7 +21,7 @@ classDiagram
 
         class MissionLoggable {
             <<interface>>
-            +addMission(EmergencyMission m)
+            +addMission(EmergencyMission m) void
             +getMissions() EmergencyMission[]
         }
 
@@ -32,6 +30,10 @@ classDiagram
             -String name
             -String role
             +TeamMember(int, String, String)
+            +getNumber() int
+            +getName() String
+            +getRole() String
+            +toString() String
         }
 
         class Doctor {
@@ -46,16 +48,14 @@ classDiagram
             TRANSPORT
             OTHER
         }
-        
+
         class Serializable {
             <<interface>>
         }
     }
 
-    %% ==========================================
-    %% 2. CLASSES DE DOMÍNIO (A VOSSA IMPLEMENTAÇÃO)
-    %% ==========================================
     namespace DomainImplementations {
+
         class MissionContext {
             <<enum>>
             NATIONAL
@@ -70,26 +70,51 @@ classDiagram
             -boolean isOperational
             -EmergencyMission[] missions
             -int missionCount
-            +addMission(EmergencyMission m)
+            +AppVehicle(String, LocalDate, double, LocalDate, LocalDate, double, boolean)
+            +getId() String*
+            +getLastInspectionDate() LocalDate
+            +getNextInspectionDate() LocalDate
+            +getWeight() double
+            +isOperational() boolean
+            +setOperational(boolean) void
+            +addMission(EmergencyMission m) void
             +getMissions() EmergencyMission[]
-            -resizeMissions()
+            -resizeMissions() void
+            +toString() String
         }
 
         class Ambulance {
             -String licensePlate
             -int stretcherCapacity
             -String lifeSupportLevel
+            +Ambulance(String, LocalDate, double, LocalDate, LocalDate, double, boolean, String, int, String)
+            +getId() String
+            +getLicensePlate() String
+            +getStretcherCapacity() int
+            +getLifeSupportLevel() String
+            +toString() String
         }
 
         class MedicalHelicopter {
             -String registrationTailNumber
             -int maxFlightAltitude
             -int rotorCount
+            +MedicalHelicopter(String, LocalDate, double, LocalDate, LocalDate, double, boolean, String, int, int)
+            +getId() String
+            +getRegistrationTailNumber() String
+            +getMaxFlightAltitude() int
+            +getRotorCount() int
+            +toString() String
         }
 
         class RapidResponseCar {
             -String licensePlate
             -boolean hasAdvancedDefibrillator
+            +RapidResponseCar(String, LocalDate, double, LocalDate, LocalDate, double, boolean, String, boolean)
+            +getId() String
+            +getLicensePlate() String
+            +hasAdvancedDefibrillator() boolean
+            +toString() String
         }
 
         class InemMission {
@@ -101,8 +126,17 @@ classDiagram
             -String authorizerName
             -String authorizerRole
             -MedicalTeam assignedTeam
+            +InemMission(LocalDateTime, LocalDateTime, EmergencyType, MissionContext, String, String, String, MedicalTeam)
             +getDurationMinutes() int
             +getDescription() String
+            +getStartDate() LocalDateTime
+            +getEndDate() LocalDateTime
+            +getType() EmergencyType
+            +getContext() MissionContext
+            +getAuthorizerName() String
+            +getAuthorizerRole() String
+            +getAssignedTeam() MedicalTeam
+            +toString() String
         }
 
         class MedicalTeam {
@@ -110,36 +144,39 @@ classDiagram
             -TeamMember[] members
             -int memberCount
             -Doctor responsibleDoctor
-            -int MAX_MEMBERS
+            -static final int MAX_MEMBERS
+            +MedicalTeam(String, Doctor)
             +getTeamId() String
+            +getResponsibleDoctor() Doctor
+            +getMemberCount() int
             +addMember(TeamMember m) boolean
             +removeMember(TeamMember m) boolean
-            +setResponsibleDoctor(Doctor d)
-            -resizeMembers()
+            +setResponsibleDoctor(Doctor d) void
+            +getMembers() TeamMember[]
+            -resizeMembers() void
+            +toString() String
         }
     }
 
-    %% ==========================================
-    %% 3. OBJETOS DE TRANSFERÊNCIA (DTOs)
-    %% ==========================================
     namespace DataTransferObjects {
         class MissionTypeStatsDTO {
             <<DTO>>
             +String vehicleType
             +EmergencyType type
             +double averageMissions
+            +MissionTypeStatsDTO(String, EmergencyType, double)
+            +toString() String
         }
 
         class ContextStatsDTO {
             <<DTO>>
             +int nationalCount
             +int internationalCount
+            +ContextStatsDTO(int, int)
+            +toString() String
         }
     }
 
-    %% ==========================================
-    %% 4. INTERFACES (CONTRATOS CRUD E RELATÓRIOS)
-    %% ==========================================
     namespace Interfaces {
         class IVehicleManager {
             <<interface>>
@@ -150,6 +187,7 @@ classDiagram
             +getAllVehicles() EmergencyVehicle[]
             +getVehiclesIncorporatedInYear(int year) EmergencyVehicle[]
             +getVehiclesReachingEndOfLife(int yearsThreshold) EmergencyVehicle[]
+            +getVehiclesWithMinMissionsInYear(int minMissions, int year) EmergencyVehicle[]
         }
 
         class IMissionManager {
@@ -176,30 +214,30 @@ classDiagram
         }
     }
 
-    %% ==========================================
-    %% 5. CLASSES DE GESTÃO (MANAGERS & FACADE)
-    %% ==========================================
     namespace Management {
         class VehicleManager {
             -EmergencyVehicle[] vehicles
             -int vehicleCount
-            -resizeArray()
+            +VehicleManager()
+            -resizeArray() void
         }
 
         class MissionManager {
             -EmergencyMission[] missions
             -int missionCount
-            -resizeArray()
+            +MissionManager()
+            -resizeArray() void
         }
 
         class TeamManager {
             -MedicalTeam[] teams
             -int teamCount
-            -resizeArray()
+            +TeamManager()
+            -resizeArray() void
         }
-        
+
         class FileManager {
-            <<Service>>
+            +FileManager()
             +saveDataToFile(String filename, INEMFacade system) boolean
             +loadDataFromFile(String filename, INEMFacade system) boolean
         }
@@ -217,47 +255,36 @@ classDiagram
         }
     }
 
-    %% ==========================================
-    %% RELACIONAMENTOS E LIGAÇÕES
-    %% ==========================================
-    
-    %% Heranças e Implementações (Base JAR)
     EmergencyVehicle ..|> Serializable
     EmergencyVehicle ..|> MissionLoggable
     Doctor --|> TeamMember
-    
-    %% Heranças e Implementações (Domínio)
+
     AppVehicle --|> EmergencyVehicle
     Ambulance --|> AppVehicle
     MedicalHelicopter --|> AppVehicle
     RapidResponseCar --|> AppVehicle
+
     InemMission ..|> EmergencyMission
-    
-    %% Implementação de Interfaces (Managers)
+
     VehicleManager ..|> IVehicleManager
     MissionManager ..|> IMissionManager
     TeamManager ..|> ITeamManager
     FileManager ..|> IFileHandler
-    
-    %% Associações e Composições (Domínio)
+
     MedicalTeam o-- TeamMember : "agrega 1..*"
     MedicalTeam *-- Doctor : "exige 1"
-    
     InemMission --> EmergencyType
     InemMission --> MissionContext
     InemMission --> MedicalTeam
-    
-    %% Composições da Facade
+
     INEMFacade *-- IVehicleManager
     INEMFacade *-- IMissionManager
     INEMFacade *-- ITeamManager
     INEMFacade *-- IFileHandler
 
-    %% Agregações dos Managers (Arrays de estado)
     VehicleManager o-- EmergencyVehicle : "gere 0..*"
     MissionManager o-- EmergencyMission : "gere 0..*"
     TeamManager o-- MedicalTeam : "gere 0..*"
 
-    %% Dependências de Retorno (DTOs)
     IMissionManager ..> MissionTypeStatsDTO : "retorna"
     IMissionManager ..> ContextStatsDTO : "retorna"
