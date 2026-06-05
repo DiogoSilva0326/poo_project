@@ -25,21 +25,6 @@ classDiagram
             +getMissions() EmergencyMission[]
         }
 
-        class TeamMember {
-            -int number
-            -String name
-            -String role
-            +TeamMember(int, String, String)
-            +getNumber() int
-            +getName() String
-            +getRole() String
-            +toString() String
-        }
-
-        class Doctor {
-            +Doctor(int, String)
-        }
-
         class EmergencyType {
             <<enum>>
             ACCIDENT
@@ -55,6 +40,21 @@ classDiagram
     }
 
     namespace DomainImplementations {
+        
+        class TeamMember {
+            -int number
+            -String name
+            -String role
+            +TeamMember(int, String, String)
+            +getNumber() int
+            +getName() String
+            +getRole() String
+            +toString() String
+        }
+
+        class Doctor {
+            +Doctor(int, String)
+        }
 
         class MissionContext {
             <<enum>>
@@ -71,7 +71,7 @@ classDiagram
             -EmergencyMission[] missions
             -int missionCount
             +AppVehicle(String, LocalDate, double, LocalDate, LocalDate, double, boolean)
-            +getId() String*
+            +getId() String
             +getLastInspectionDate() LocalDate
             +getNextInspectionDate() LocalDate
             +getWeight() double
@@ -257,6 +257,7 @@ classDiagram
 
     EmergencyVehicle ..|> Serializable
     EmergencyVehicle ..|> MissionLoggable
+    
     Doctor --|> TeamMember
 
     AppVehicle --|> EmergencyVehicle
