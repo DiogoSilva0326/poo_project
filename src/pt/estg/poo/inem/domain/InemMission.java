@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import pt.estg.poo.inem.Enums.EmergencyType;
 import pt.estg.poo.inem.interfaces.EmergencyMission;
+import pt.estg.poo.inem.Enums.MissionContext;
 
 public class InemMission implements EmergencyMission {
     //Atributos
