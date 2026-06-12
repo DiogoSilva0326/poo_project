@@ -10,7 +10,7 @@ public class MedicalTeam {
     
     //Atributos static
     private static int count = 0;
-    private static final int MAX_MEMBERS = 10;
+    private static final int MAX_MEMBERS = 10; //Regra Geral: Todas as equipas vão partilhar um limite máximo de 10 membros.
 
     //Constrtor
     public MedicalTeam(Doctor responsibleDoctor){
@@ -110,9 +110,10 @@ public class MedicalTeam {
 
             for(int i = 0; i < memberCount; i ++){
                 temp[i] = members[i];
-            
-            members = temp;
-        }
+        
+            }
+
+        members = temp;
 
     }
 
@@ -161,6 +162,43 @@ public class MedicalTeam {
     }
 
     /**
+     * Atualiza o membro associado a uma equipa médica.
+     * 
+     * Substitui um membro existente por outro membro.
+     * 
+     * @param oldMember (novo membro a associar á equipa médica).
+     * @param newMember (membro atualmente registado que será substituido).
+     * 
+     * @throws IllegalArgumentException se o membro a substituir não existir.
+     * @throws IllegalArgumentException se o novo membro já estiver registado na equipa médica.
+    */
+    public void updateMember(TeamMember oldMember, TeamMember newMember){
+        
+        if (!exists(oldMember)) {
+            throw new IllegalArgumentException("O membro que pretende atualizar não se encontra registado na equipa médica");
+        }
+
+        if (exists(newMember)) {
+            throw new IllegalArgumentException("O membro que pretende atualizar já se encontra registado na equipa médica.");
+        }
+
+        int pos = searchMember(oldMember);
+
+        members[pos] = newMember;
+    }
+
+    
+    /**
+     * Lista todos os membros associados á equipa
+    */
+    public void listMember(){
+        for(int i = 0; i < memberCount; i++){
+            System.out.println(members[i]);
+        }
+    }
+
+
+    /**
      * Devolve uma apresentação textual da equipa médica,
      * incluindo o identificador da equipa, o médico responsável
      * e a lsta de membros associados.
@@ -169,9 +207,9 @@ public class MedicalTeam {
     */
     @Override
     public String toString(){
-        String result ="\nId: " + getTeamId() +
-                       "\nDoutor: " + getResponsibleDoctor() + 
-                       "\nMembros:\n";
+        String result ="\n Id: " + getTeamId() +
+                       "\n Doutor: " + getResponsibleDoctor() + 
+                       "\n Membros:\n";
 
         for(int i = 0; i < memberCount; i++){
             result += members[i] + "\n"; 
