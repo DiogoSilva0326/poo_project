@@ -1,9 +1,11 @@
 package pt.estg.poo.inem.domain;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import pt.estg.poo.inem.Enums.EmergencyType;
+import pt.estg.poo.inem.interfaces.EmergencyMission;
 
-public class InemMission {
+public class InemMission implements EmergencyMission {
     //Atributos
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -94,6 +96,7 @@ public class InemMission {
     * 
     * @return a descrição.
     */
+    @Override
     public String getDescription(){
         return description;
     }
@@ -152,6 +155,11 @@ public class InemMission {
      */
     public void setMedicalTeam(MedicalTeam assignedTeam){
         this.assignedTeam = assignedTeam;
+    }
+
+    @Override
+    public int getDurationMinutes(){
+        return (int) Duration.between(startDate, endDate).toMinutes();
     }
 
     //Método ToString
