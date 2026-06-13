@@ -3,8 +3,8 @@ package pt.estg.poo.inem.domain;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import pt.estg.poo.inem.Enums.EmergencyType;
-import pt.estg.poo.inem.interfaces.EmergencyMission;
 import pt.estg.poo.inem.Enums.MissionContext;
+import pt.estg.poo.inembase.EmergencyMission;
 
 public class InemMission implements EmergencyMission {
     //Atributos
@@ -19,6 +19,19 @@ public class InemMission implements EmergencyMission {
 
     //Construtor
     public InemMission(LocalDateTime startDate, LocalDateTime endDate, EmergencyType type, MissionContext context, String description, String authorizerName, String authorizerRole, MedicalTeam assignedTeam){
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("As datas de início e fim da missão não podem ser nulas.");
+        }
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("Erro: A data de fim da missão não pode ser anterior à data de início.");
+        }
+        if (assignedTeam == null) {
+            throw new IllegalArgumentException("Erro: É obrigatório atribuir uma equipa médica à missão.");
+        }
+        if (type == null || context == null) {
+            throw new IllegalArgumentException("O tipo de emergência e o contexto não podem ser nulos.");
+        }
+        
         this.startDate = startDate;
         this.endDate = endDate;
         this.type = type;
@@ -27,6 +40,23 @@ public class InemMission implements EmergencyMission {
         this.authorizerName = authorizerName;
         this.authorizerRole = authorizerRole;
         this.assignedTeam = assignedTeam;
+    }
+
+    /**
+    * Devolve a descricão associada á missão.
+    * 
+    * @return a descrição.
+    */
+    @Override
+    public String getDescription(){
+        return description;
+    }
+
+    @Override
+    public int getDurationMinutes() {
+        // A classe Duration calcula a diferença exata entre duas datas/horas
+        Duration duration = Duration.between(this.startDate, this.endDate);
+        return (int) duration.toMinutes();
     }
 
     //Métodos de acesso
@@ -92,15 +122,6 @@ public class InemMission implements EmergencyMission {
         return context;
     }
 
-    /**
-    * Devolve a descricão associada á missão.
-    * 
-    * @return a descrição.
-    */
-    @Override
-    public String getDescription(){
-        return description;
-    }
 
     /**
     * Altera a descrição associada á missão.
@@ -158,11 +179,6 @@ public class InemMission implements EmergencyMission {
         this.assignedTeam = assignedTeam;
     }
 
-    @Override
-    public int getDurationMinutes(){
-        return (int) Duration.between(startDate, endDate).toMinutes();
-    }
-
     //Método ToString
     @Override
     public String toString(){
@@ -174,7 +190,4 @@ public class InemMission implements EmergencyMission {
                "\n FunçãoAutorizador: " + getAuthorizerRole() +
                "\n Assinado: " + getAssignedTeam();
     }
-
-
-
 }
