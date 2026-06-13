@@ -26,14 +26,6 @@ public class MedicalTeam implements Serializable{
         return responsibleDoctor;
     }
 
-    /**
-     * Altera o doutor responsável da equipa médica.
-     * 
-     * O doutor responsável pode ser alterado caso
-     * seja substituido por algum motivo especifico.
-     * 
-     * @param responsibleDoctor
-    */
     public void setResponsibleDoctor(Doctor responsibleDoctor) {
         this.responsibleDoctor = responsibleDoctor;
     }
@@ -50,10 +42,6 @@ public class MedicalTeam implements Serializable{
         return currenTeamMembers;
     }
 
-    /**
-     * Método auxiliar que aumenta a capacidade do array de membros
-     * quando este atinge o seu limite.
-    */
     private void resizeMembers(){
         TeamMember[] newArray = new TeamMember[MAX_MEMBERS * 2];
         for (int i=0; i<members.length; i++){
@@ -62,66 +50,24 @@ public class MedicalTeam implements Serializable{
         this.members = newArray;
     }
 
-
-    //Métodos
-
-    /**
-     * Procura um membro da equipa
-     * 
-     * @param member (membro a procurar)
-     * @return índice do membro no array se existir,
-     *         -1 caso não seja encontrado
-    */
-    public int searchMember(TeamMember member){
-        for(int i = 0 ; i < memberCount ; i++){
-            if (members[i].equals(member)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    /**
-     * Método auxiliar que verifica se um determinado membro pertence á equipa
-     * 
-     * @param member (membro a verificar)
-     * 
-     * @return true se o membro existir na equipa,
-     *         false se o membro não existir
-    */
-    private boolean exists(TeamMember member){
-        return searchMember(member) != -1;
-    }
-
-
-    /**
-     * Adiciona um novo membro á equipa.
-     * Caso o membro já exista, é lançada uma exceção.
-     * Se a capacidade do array for atingida, o array é redimensionado.
-     * 
-     * 
-     * @param newMember (novo membro a adicionar á equipa)
-     * @throws IllegalArgumentException se o membro já existir na equipa
-    */
-    public void addMember(TeamMember newMember){
-        if (exists(newMember)) {
-            throw new IllegalArgumentException("O membro já existe");
+    public boolean addMember(TeamMember m){
+        if (m==null){
+            return false;
         }
 
-        if (memberCount == members.length) {
+        if (memberCount == MAX_MEMBERS){
             resizeMembers();
         }
 
-        members[memberCount] = newMember;
-        memberCount++;
+        for (int i=0; i<memberCount; i++){
+            if (members[i].getNumber() == m.getNumber()){
+                return false;
+            }
+        }
+        members[memberCount++] = m;
+        return true;
     }
 
-    /**
-     * Remove um membro da equipa.
-     * Caso o membro não exista, é lançada uma exceção.
-     * 
-     * @param removeMember (membro a remover)
-     * @throws IllegalArgumentException se o membro não existir na equipa
-    */
     public boolean removeMember(TeamMember m){
         if (m == null){
             return false;
@@ -138,17 +84,10 @@ public class MedicalTeam implements Serializable{
         return false;
     }
 
-    /**
-     * Devolve uma apresentação textual da equipa médica,
-     * incluindo o identificador da equipa, o médico responsável
-     * e a lsta de membros associados.
-     * 
-     * @return representação textual da equipa médica
-    */
     @Override
     public String toString() {
         String docName = (responsibleDoctor != null) ? responsibleDoctor.getName() : "Sem Médico";
         return "MedicalTeam [teamId=" + teamId + ", Doctor=" + docName + ", Total Members=" + memberCount + "]";
-    }  
+    }
 
 }
