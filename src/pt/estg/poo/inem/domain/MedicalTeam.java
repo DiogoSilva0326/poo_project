@@ -1,60 +1,28 @@
 package pt.estg.poo.inem.domain;
 
-public class MedicalTeam {
+import java.io.Serializable;
 
-    //Atributos
-    private int teamId;
+public class MedicalTeam implements Serializable{
+    private String teamId;
     private TeamMember[] members;
     private int memberCount;
     private Doctor responsibleDoctor;
-    
-    //Atributos static
-    private static int count = 0;
-    private static final int MAX_MEMBERS = 10;
+    private static final int MAX_MEMBERS = 5;
 
-    //Constrtor
-    public MedicalTeam(Doctor responsibleDoctor){
-        this.teamId = ++ count;
+    public MedicalTeam(String teamId,  Doctor responsibleDoctor){
+        this.teamId = teamId;
         this.members = new TeamMember[MAX_MEMBERS];
         this.memberCount = 0;
-        this.responsibleDoctor = responsibleDoctor;
+        if (responsibleDoctor != null){
+            this.addMember(responsibleDoctor);
+        }
     }
 
-    //Métodos de acesso
-
-    /**
-     * Devolve o id associada á equipa médica.
-     * 
-     * @return o id da equipa
-    */
-    public int getTeamId(){
+    public String getTeamId() {
         return teamId;
     }
 
-    /**
-     * Devolve os membros da equipa médica
-     * 
-     * @return os membros da equipa
-    */
-    public TeamMember[] getTeamMembers(){
-        return members;
-    }  
-
-    /**
-     * Devolve o numero de membros da equipa.
-     * 
-     * @return o numero de membros.
-    */
-    public int getMemberCount(){
-        return memberCount;
-    }
-    
-    /**
-     * Devolve o doutor responsavel da equipa médica
-     * 
-     * @return o doutor responsavel
-    */
-    public Doctor getResponsibleDoctor(){
+    public Doctor getResponsibleDoctor() {
         return responsibleDoctor;
     }
 
@@ -66,9 +34,34 @@ public class MedicalTeam {
      * 
      * @param responsibleDoctor
     */
-    public void setReponsibleDoctor(Doctor responsibleDoctor){
+    public void setResponsibleDoctor(Doctor responsibleDoctor) {
         this.responsibleDoctor = responsibleDoctor;
     }
+
+    public int getMemberCount() {
+        return memberCount;
+    }
+
+    public TeamMember[] getMembers(){
+        TeamMember[] currenTeamMembers = new TeamMember[memberCount];
+        for (int i=0; i<memberCount; i++){
+            currenTeamMembers[i] = members[i];
+        }
+        return currenTeamMembers;
+    }
+
+    /**
+     * Método auxiliar que aumenta a capacidade do array de membros
+     * quando este atinge o seu limite.
+    */
+    private void resizeMembers(){
+        TeamMember[] newArray = new TeamMember[MAX_MEMBERS * 2];
+        for (int i=0; i<members.length; i++){
+            newArray[i] = members[i];
+        }
+        this.members = newArray;
+    }
+
 
     //Métodos
 
@@ -101,22 +94,6 @@ public class MedicalTeam {
 
 
     /**
-     * Método auxiliar que aumenta a capacidade do array de membros
-     * quando este atinge o seu limite.
-    */
-    private void resizeMembers(){
-
-        TeamMember[] temp = new TeamMember[members.length * 2];
-
-            for(int i = 0; i < memberCount; i ++){
-                temp[i] = members[i];
-            
-            members = temp;
-        }
-
-    }
-
-    /**
      * Adiciona um novo membro á equipa.
      * Caso o membro já exista, é lançada uma exceção.
      * Se a capacidade do array for atingida, o array é redimensionado.
@@ -145,19 +122,20 @@ public class MedicalTeam {
      * @param removeMember (membro a remover)
      * @throws IllegalArgumentException se o membro não existir na equipa
     */
-    public void removeMember(TeamMember removeMember){
-        if (!exists(removeMember)) {
-            throw new IllegalArgumentException("Impossivel remover um membro existente");
+    public boolean removeMember(TeamMember m){
+        if (m == null){
+            return false;
         }
 
-        int pos = searchMember(removeMember);
-
-        for(int i = pos ; i < memberCount - 1 ; i++){
-            members[i] = members[i + 1];
+        for (int i=0; i<memberCount; i++){
+            if (members[i].getNumber() == m.getNumber()){
+                members[i] = members[memberCount - 1];
+                members[memberCount - 1] = null;
+                memberCount--;
+                return true;
+            }
         }
-
-        members[memberCount - 1 ] = null;
-        memberCount --;
+        return false;
     }
 
     /**
@@ -168,16 +146,9 @@ public class MedicalTeam {
      * @return representação textual da equipa médica
     */
     @Override
-    public String toString(){
-        String result ="\nId: " + getTeamId() +
-                       "\nDoutor: " + getResponsibleDoctor() + 
-                       "\nMembros:\n";
-
-        for(int i = 0; i < memberCount; i++){
-            result += members[i] + "\n"; 
-        }
-
-        return result;
-    }   
+    public String toString() {
+        String docName = (responsibleDoctor != null) ? responsibleDoctor.getName() : "Sem Médico";
+        return "MedicalTeam [teamId=" + teamId + ", Doctor=" + docName + ", Total Members=" + memberCount + "]";
+    }  
 
 }
