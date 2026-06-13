@@ -1,46 +1,14 @@
 package pt.estg.poo.inem.domain;
 
-public class Doctor {
-    //Atributos
-    private int id;
-    private String name;
 
-    //Atributos static
-    private static int cont = 0;
+public class Doctor extends TeamMember{
+
+    public Doctor(int number, String name, String role){
+        super(number, name, "Doctor");
+    }
     
-    //Construtor
-    public Doctor(String name){
-        this.id = ++ cont;
-        this.name = name;
-    }
-
-    //Métodos de Acesso
-
-    /**
-     * Devolve o id associada ao doutor.
-     * 
-     * @return (identificador do doutor)
-    */
-    public int getId(){
-        return id;
-    }
-
-    /**
-     * Devolve o nome associada ao doutor.
-     * 
-     * @return (nome do doutor)
-    */
-    public String getName(){
-        return name;
-    }
-
-    //Método ToString
     @Override
-    public String toString(){
-        return "\n Id: " + getId() +
-               "\n Nome: " + getName();
+    public String toString() {
+        return "Doctor [number=" + getNumber() + ", name=" + getName() + "]";
     }
-
-
-    
 }
